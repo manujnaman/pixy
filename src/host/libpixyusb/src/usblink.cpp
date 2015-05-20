@@ -20,6 +20,11 @@
 #include "utils/timer.hpp"
 #include "debuglog.h"
 
+// Includes to enable symlink
+#include <libudev.h>
+#include <libusb.h>
+#include "usbsymlink.h"
+
 USBLink::USBLink()
 {
   m_handle = 0;
@@ -55,6 +60,80 @@ int USBLink::open()
   m_handle = libusb_open_device_with_vid_pid(m_context, PIXY_VID, PIXY_DID);
   log("pixydebug:  libusb_open_device_with_vid_pid() = %d\n", m_handle);
 
+  if (m_handle == NULL) {
+    return_value = PIXY_ERROR_USB_NOT_FOUND;
+
+    goto usblink_open__exit;
+  }
+
+#ifdef __MACOS__
+  return_value = libusb_reset_device(m_handle);
+  log("pixydebug:  libusb_reset_device() = %d\n", return_value);
+  usleep(MILLISECONDS_TO_SLEEP * 1000);
+#endif
+
+  return_value = libusb_set_configuration(m_handle, 1);
+  log("pixydebug:  libusb_set_configuration() = %d\n", return_value);
+
+  if (return_value < 0) {
+    goto usblink_open__close_and_exit;
+  }
+
+  return_value = libusb_claim_interface(m_handle, 1);
+  log("pixydebug:  libusb_claim_interface() = %d\n", return_value);
+
+  if (return_value < 0) {
+    goto usblink_open__close_and_exit;
+  }
+
+#ifdef __LINUX__
+  return_value = libusb_reset_device(m_handle);
+  log("pixydebug:  libusb_reset_device() = %d\n", return_value);
+#endif
+
+  /* Success */
+  return_value = 0;
+  goto usblink_open__exit;
+
+usblink_open__close_and_exit:
+  /* Cleanup after error */
+
+  libusb_close(m_handle);
+  m_handle = 0;
+
+usblink_open__exit:
+  log("pixydebug: USBLink::open() returned %d\n", return_value);
+
+  return return_value;
+}
+
+
+int USBLink::open_symlink(const char* symlink)
+{
+  int return_value;
+#ifdef __MACOS__
+  const unsigned int MILLISECONDS_TO_SLEEP = 100;
+#endif
+
+  log("pixydebug: USBLink::open_symlink()\n");
+
+  UsbSymlink usb_symlink(symlink, PIXY_VID, PIXY_DID);
+
+  return_value = libusb_init(&m_context);
+  log("pixydebug:  libusb_init() = %d\n", return_value);
+
+  if (return_value) {
+    goto usblink_open__exit;
+  }
+
+  /* We want to choose the connected pixy using a symlink
+   * So we will not use the ibusb convenience function, but instead generate 
+   * the link using libudev abd libusb calls */
+  
+  //m_handle = libusb_open_device_with_vid_pid(m_context, PIXY_VID, PIXY_DID);
+  
+  log("pixydebug:  libusb_open_device_with_vid_pid() = %d\n", m_handle);
+  usb_symlink.GetUsbDeviceHandle(m_context, &m_handle);
   if (m_handle == NULL) {
     return_value = PIXY_ERROR_USB_NOT_FOUND;
 

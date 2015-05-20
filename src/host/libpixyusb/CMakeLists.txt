@@ -6,8 +6,11 @@ set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_PATH} )
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
 
+set (BOOST_ROOT "/usr/local/boost")
+
+find_package ( UDev REQUIRED )
 find_package ( libusb-1.0 REQUIRED )
-find_package ( Boost 1.49 COMPONENTS thread system REQUIRED)
+find_package ( Boost 1.55 COMPONENTS thread system REQUIRED)
 
 # Define Operating System #
 
@@ -38,7 +41,8 @@ include_directories (src
                      include
                      ../../common
                      ${Boost_INCLUDE_DIR}
-                     ${LIBUSB_1_INCLUDE_DIRS})
+                     ${LIBUSB_1_INCLUDE_DIRS}
+                     ${UDEV_INCLUDE_DIRS})
 
 install (TARGETS pixyusb DESTINATION lib)
 install (FILES include/pixy.h DESTINATION include)

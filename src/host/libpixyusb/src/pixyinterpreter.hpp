@@ -49,6 +49,20 @@ class PixyInterpreter : public Interpreter
     int init();
     
     /**
+      @brief  Spawns an 'interpreter' thread which attempts to 
+              connect to Pixy using the USB interface. 
+              On successful connection, this thread will 
+              capture and store Pixy 'block' object data 
+              which can be retreived using the getBlocks()
+              method.
+       @return   0    Success
+       @return  -1    Error: Unable to open pixy USB device
+
+    */
+  
+    int init_symlink(const char* symlink);
+    
+    /**
       @brief  Terminates the USB connection to Pixy and
               the 'iterpreter' thread.
     */

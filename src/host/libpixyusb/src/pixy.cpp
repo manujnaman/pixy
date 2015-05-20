@@ -98,6 +98,20 @@ extern "C"
     return return_value;
   }
 
+  int pixy_init_symlink(const char* symlink)
+  {
+    int return_value;
+
+    return_value = interpreter.init_symlink(symlink);
+
+    if(return_value == 0) 
+    {
+      pixy_initialized = true;
+    }
+
+    return return_value;
+  }
+
   int pixy_get_blocks(uint16_t max_blocks, struct Block * blocks)
   {
     return interpreter.get_blocks(max_blocks, blocks);

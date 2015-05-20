@@ -27,6 +27,7 @@ public:
     ~USBLink();
 
     int open();
+    int open_symlink(const char* symlink);
     virtual int send(const uint8_t *data, uint32_t len, uint16_t timeoutMs);
     virtual int receive(uint8_t *data, uint32_t len, uint16_t timeoutMs);
     virtual void setTimer();

@@ -89,6 +89,17 @@ extern "C"
   int pixy_init();
 
   /**
+    @brief Creates a connection with Pixy and listens for Pixy messages.
+    @param[in]  symlink  Symlink of the pixy to connect to.
+    @return  0                         Success
+    @return  PIXY_ERROR_USB_IO         USB Error: I/O
+    @return  PIXY_ERROR_NOT_FOUND      USB Error: Pixy not found
+    @return  PIXY_ERROR_USB_BUSY       USB Error: Busy
+    @return  PIXY_ERROR_USB_NO_DEVICE  USB Error: No device
+  */
+  int pixy_init_symlink(const char* symlink);
+
+  /**
     @brief      Indicates when new block data from Pixy is received.
 
     @return  1  New Data:   Block data has been updated.

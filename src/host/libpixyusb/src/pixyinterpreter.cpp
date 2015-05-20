@@ -55,6 +55,32 @@ int PixyInterpreter::init()
   return 0;
 }
 
+int PixyInterpreter::init_symlink(const char* symlink)
+{
+  int USB_return_value;
+
+  if(thread_dead_ == false) 
+  {
+    fprintf(stderr, "libpixy: Already initialized.");
+    return 0;
+  }
+
+  USB_return_value = link_.open_symlink(symlink);
+
+  if(USB_return_value < 0) {
+    return USB_return_value;
+  }
+
+  receiver_ = new ChirpReceiver(&link_, this);
+
+  // Create the interpreter thread //
+
+  thread_dead_ = false;
+  thread_      = boost::thread(&PixyInterpreter::interpreter_thread, this);
+
+  return 0;
+}
+
 void PixyInterpreter::close()
 {
   // Is the interpreter thread alive? //

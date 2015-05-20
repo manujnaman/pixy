@@ -48,7 +48,8 @@ int main(int argc, char * argv[])
   printf("Hello Pixy:\n libpixyusb Version: %s\n", __LIBPIXY_VERSION__);
 
   // Connect to Pixy //
-  pixy_init_status = pixy_init();
+  //pixy_init_status = pixy_init();
+  pixy_init_status = pixy_init_symlink("/dev/PixyCam1");
 
   // Was there an error initializing pixy? //
   if(!pixy_init_status == 0)
@@ -145,3 +146,5 @@ int main(int argc, char * argv[])
   }
   pixy_close();
 }
+
+
